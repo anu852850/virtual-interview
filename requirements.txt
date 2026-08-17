@@ -1,0 +1,16 @@
+streamlit==1.38.0
+langchain==0.3.7
+langchain-groq==0.2.1
+langchain-community==0.3.5
+langchain-huggingface==0.1.2
+langchain-text-splitters==0.3.2
+faiss-cpu==1.9.0
+huggingface-hub==0.26.2
+sentence-transformers==3.2.1
+groq==0.11.0
+edge-tts==6.1.19
+sounddevice==0.5.1
+scipy==1.14.1
+pypdf==5.1.0
+rank-bm25==0.2.2
+python-dotenv==1.0.1

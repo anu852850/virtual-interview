@@ -1,0 +1,12 @@
+.env
+uploads/
+vectorstore/
+Question_Audios/
+model_cache/
+__pycache__/
+*.pyc
+venv/
+.venv/
+res.pdf
+resume2.pdf
+temp_resume.pdf
