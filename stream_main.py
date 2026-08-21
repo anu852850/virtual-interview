@@ -594,7 +594,7 @@ if (
 
     audio_value = st.audio_input(
         "Candidate microphone",
-        sample_rate=16000,
+        
         key=f"candidate_audio_{round_num}",
         label_visibility="collapsed"
     )
