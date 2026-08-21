@@ -382,26 +382,39 @@ import edge_tts
 
 async def generate_speech_with_timings(text, filename):
 
-    communicate = edge_tts.Communicate(text=text, voice=TTS_VOICE)
+    communicate = edge_tts.Communicate(
+        text=text,
+        voice=TTS_VOICE
+    )
 
     word_timings = []
     first_chunk = True
 
     try:
         async for chunk in communicate.stream():
+
             if chunk["type"] == "audio":
                 mode = "wb" if first_chunk else "ab"
+
                 with open(filename, mode) as f:
                     f.write(chunk["data"])
+
                 first_chunk = False
+
             elif chunk["type"] == "WordBoundary":
                 word_timings.append({
                     "word": chunk["text"],
                     "offset": chunk["offset"] / 10_000_000
                 })
+
     except Exception as e:
-        logger.exception("TTS generation failed for filename=%s", filename)
-        raise TTSError(f"Could not generate question audio: {e}") from e
+        logger.exception(
+            "TTS generation failed for filename=%s",
+            filename
+        )
+        raise TTSError(
+            f"Could not generate question audio: {e}"
+        ) from e
 
     return filename, word_timings
 
