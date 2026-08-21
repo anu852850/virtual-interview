@@ -15,6 +15,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
 from dotenv import load_dotenv
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 load_dotenv()
 
@@ -489,18 +490,35 @@ def evaluate_answer_chain(llm, prompt):
     return prompt | structured_llm
 
 
+# ------------------------------------------------------------
+# Groq's structured-output (tool-calling) path is intermittently
+# flaky: the model sometimes returns plain text instead of calling
+# the tool, which surfaces as a 400 "Tool choice is required, but
+# model did not call a tool" error. Retrying a couple of times
+# resolves it most of the time without needing any user-facing change.
+# ------------------------------------------------------------
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=1, max=6),
+    retry=retry_if_exception_type(Exception),
+    reraise=True
+)
+def _invoke_eval_chain(chain, payload):
+    return chain.invoke(payload)
+
+
 def evaluate_answer(llm, prompt, question, resume_section, candidate_answer):
 
     chain = evaluate_answer_chain(llm=llm, prompt=prompt)
 
     try:
-        result = chain.invoke({
+        result = _invoke_eval_chain(chain, {
             "question": question,
             "resume_section": resume_section,
             "candidate_answer": candidate_answer
         })
     except Exception as e:
-        logger.exception("LLM call failed while evaluating answer")
+        logger.exception("LLM call failed while evaluating answer after retries")
         raise LLMCallError(f"Could not evaluate the answer right now: {e}") from e
 
     logger.info("Evaluation result: %s", result)
