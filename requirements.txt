@@ -7,7 +7,7 @@ langchain-text-splitters==0.3.2
 faiss-cpu==1.13.2
 huggingface-hub==0.26.2
 sentence-transformers==3.2.1
-groq==0.11.0
+groq==0.13.0
 edge-tts==6.1.19
 sounddevice==0.5.1
 scipy==1.14.1
